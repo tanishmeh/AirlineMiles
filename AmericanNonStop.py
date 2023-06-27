@@ -7,20 +7,22 @@ from selenium.common.exceptions import NoSuchElementException
 import time
 import datetime
 import undetected_chromedriver as uc
-import random
 
 class Flight:
-    def __init__(self, ep, pp, bp, fp):
+    def __init__(self, ep, pp, bp, fp, origin, destination):
         self.ep = ep
         self.pp = pp
         self.bp = bp
         self.fp = fp
+        self.origin = origin
+        self.destination = destination
 
 def flightToStr(f):
-    return "Flight " + str(f.ep) + " - " + str(f.pp) + " - " + str(f.bp) + " - " + str(f.fp)
+    return str(f.ep) + " -- " + str(f.pp) + " -- " + str(f.bp) + " -- " + str(f.fp) + " -- Duration: " + str(f.duration)
 
-driver = uc.Chrome()
-driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
+options = uc.ChromeOptions()
+options.add_argument('--headless')
+driver = uc.Chrome(options=options)
 driver.get("https://www.aa.com/booking/find-flights?maxAwardSegmentAllowed=4")
 
 
@@ -53,12 +55,12 @@ def searchInit(origin, destination, departure, arrival):
     WebDriverWait(driver, 35).until(EC.presence_of_element_located((By.ID, "flight-direction-text")))
     print(getCabinTypes())
 
-    flights = int(getFlightCount())
+    flights = []
     i = 0
-    while (i < flights):
-        print(flightToStr(getFlight(i, getCabinTypes())))
+    while i < int(getFlightCount()):
+        flights.append(flightToStr(getFlight(i, getCabinTypes())))
         i += 1
-    return getFlight(0, getCabinTypes())
+    return flights
 
 
 def searchCont(departure):
@@ -71,9 +73,15 @@ def searchCont(departure):
     submit = driver.find_element(By.ID, "flightSearchSubmitBtn")
     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
     submit.click()
-    driver.implicitly_wait(150)
 
-    return getPrice(0, 2)
+    WebDriverWait(driver, 45).until(EC.presence_of_element_located((By.ID, "flight-direction-text")))
+
+    flights = []
+    i = 0
+    while i < int(getFlightCount()):
+        flights.append(flightToStr(getFlight(i, getCabinTypes())))
+        i += 1
+    return flights
 
 
 def getPrice(flightNum, product): #Pulls the miles and copay for the flight number and the class of service (product)
@@ -109,6 +117,11 @@ def getFlight(flightNum, cabins):
         fli.bp = -1
     if "First" not in cabins:
         fli.fp = -1
+
+    fli.origin = driver.find_element(By.CSS_SELECTOR, "#flight-details-" + str(flightNum) + " .origin > .city-code").text
+    fli.destination = driver.find_element(By.CSS_SELECTOR, "#flight-details-" + str(flightNum) + " .destination > .city-code").text
+    fli.duration = driver.find_element(By.CSS_SELECTOR, "#flight-details-" + str(flightNum) + " .duration").text
+
     return fli
 
 
@@ -158,9 +171,11 @@ def convertDate(date): #Converts the date to the correct format
 
 
 start_date = datetime.date(2023, 8, 21)
-end_date = datetime.date(2024, 1, 15)
+end_date = datetime.date(2023, 8, 23)
 delta = datetime.timedelta(days=1)
-print(convertDate(start_date) + " --> " + flightToStr(searchInit("NYC", "LAX", convertDate(start_date), 0)))
-# while start_date < end_date:
-#     start_date += delta
-#     print(convertDate(start_date) + " --> " + searchCont(convertDate(start_date)))
+print(convertDate(start_date) + " --> " + str(searchInit("NYC", "DEL", convertDate(start_date), 0)))
+while start_date < end_date:
+    start_date += delta
+    print(convertDate(start_date) + " --> " + str(searchCont(convertDate(start_date))))
+
+driver.quit()
