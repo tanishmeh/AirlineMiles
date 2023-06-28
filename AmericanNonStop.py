@@ -8,10 +8,11 @@ import undetected_chromedriver as uc
 import json
 
 driver = uc.Chrome(headless=True)
+# driver = uc.Chrome()
 driver.get("https://www.aa.com/booking/find-flights?maxAwardSegmentAllowed=4")
 
 
-def searchInit(origin, destination, departure, arrival):
+def searchInit(origin, destination, departure, arrival): #Initiates the search from the first screen
     redeemButton = driver.find_element(By.CSS_SELECTOR, ".customComponent:nth-child(1) > label:nth-child(3) > .control")
     redeemButton.click()
 
@@ -30,15 +31,15 @@ def searchInit(origin, destination, departure, arrival):
     departField = driver.find_element(By.ID, "segments0.travelDate")
     departField.send_keys(departure)
 
-    if arrival != 0:
-        returnField = driver.find_element(By.ID, "segments1.travelDate")
-        returnField.send_keys(arrival)
+    # if arrival != 0:
+    #     returnField = driver.find_element(By.ID, "segments1.travelDate")
+    #     returnField.send_keys(arrival)
 
     submit = driver.find_element(By.ID, "flightSearchSubmitBtn")
     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
     submit.click()
     print("SearchInit completed!")
-    WebDriverWait(driver, 35).until(EC.presence_of_element_located((By.ID, "flight-direction-text")))
+    WebDriverWait(driver, 45).until(EC.presence_of_element_located((By.ID, "flight-direction-text")))
     print(getCabinTypes())
 
     flights = {}
@@ -46,7 +47,7 @@ def searchInit(origin, destination, departure, arrival):
     while i < int(getFlightCount()):
         flights["flight" + str(i)] = getFlight(i, getCabinTypes())
         i += 1
-    return flights
+    return flights #Returns a dictionary of all flights for the specified day
 
 
 def searchCont(departure):
@@ -84,6 +85,16 @@ def getPrice(flightNum, product): #Pulls the miles and copay for the flight numb
 def getFlight(flightNum, cabins):
     fli = {}
     i = 0
+    #
+    # if "Main Cabin" not in cabins:
+    #     fli["Economy"] = -1
+    # if "Premium Economy" not in cabins:
+    #     fli["Premium Economy"] = -1
+    # if "Business" not in cabins:
+    #     fli["Business"] = -1
+    # if "First" not in cabins:
+    #     fli["First"] = -1
+
     while i < len(cabins):
         if cabins[i] == "Main Cabin":
             fli["Economy"] = getPrice(flightNum, i)
@@ -95,14 +106,7 @@ def getFlight(flightNum, cabins):
             fli["First"] = getPrice(flightNum, i)
         i += 1
 
-    if "Main Cabin" not in cabins:
-        fli["Economy"] = -1
-    if "Premium Economy" not in cabins:
-        fli["Premium Economy"] = -1
-    if "Business" not in cabins:
-        fli["Business"] = -1
-    if "First" not in cabins:
-        fli["First"] = -1
+
 
     # fli["Origin"] = driver.find_element(By.CSS_SELECTOR, "#flight-details-" + str(flightNum) + " .origin > .city-code").text
     # fli["Destination"] = driver.find_element(By.CSS_SELECTOR, "#flight-details-" + str(flightNum) + " .destination > .city-code").text
@@ -155,16 +159,18 @@ def convertDate(date): #Converts the date to the correct format
     total = str(month) + "/" + str(day) + "/" + str(year)
     return total
 
-results = {}
+file = open("AANonstop.json", "w")
+results = {} #This will be the final dictionary containing the dates and the flights for that day
 
-start_date = datetime.date(2023, 8, 21)
-end_date = datetime.date(2023, 8, 23)
+start_date = datetime.date(2023, 7, 2)
+end_date = datetime.date(2023, 7, 4)
 delta = datetime.timedelta(days=1)
-results[convertDate(start_date)] = searchInit("NYC", "DEL", convertDate(start_date), 0)
+results[convertDate(start_date)] = searchInit("NYC", "PHX", convertDate(start_date), 0)
 while start_date < end_date:
     start_date += delta
     results[convertDate(start_date)] = searchCont(convertDate(start_date))
 
-print(json.dumps(results, indent=4))
+file.write(json.dumps(results, indent=4))
+file.close()
 
 driver.quit()
