@@ -1,28 +1,26 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
-import time
 import datetime
 import undetected_chromedriver as uc
+import json
 
 class Flight:
-    def __init__(self, ep, pp, bp, fp, origin, destination):
+    def __init__(self, ep, pp, bp, fp, origin, destination, duration):
         self.ep = ep
         self.pp = pp
         self.bp = bp
         self.fp = fp
         self.origin = origin
         self.destination = destination
+        self.duration = duration
 
 def flightToStr(f):
     return str(f.ep) + " -- " + str(f.pp) + " -- " + str(f.bp) + " -- " + str(f.fp) + " -- Duration: " + str(f.duration)
 
-options = uc.ChromeOptions()
-options.add_argument('--headless')
-driver = uc.Chrome(options=options)
+driver = uc.Chrome(headless=True)
 driver.get("https://www.aa.com/booking/find-flights?maxAwardSegmentAllowed=4")
 
 
@@ -52,13 +50,14 @@ def searchInit(origin, destination, departure, arrival):
     submit = driver.find_element(By.ID, "flightSearchSubmitBtn")
     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
     submit.click()
+    print("SearchInit completed!")
     WebDriverWait(driver, 35).until(EC.presence_of_element_located((By.ID, "flight-direction-text")))
     print(getCabinTypes())
 
-    flights = []
+    flights = {}
     i = 0
     while i < int(getFlightCount()):
-        flights.append(flightToStr(getFlight(i, getCabinTypes())))
+        flights["flight" + i] = getFlight(i, getCabinTypes())
         i += 1
     return flights
 
@@ -76,10 +75,10 @@ def searchCont(departure):
 
     WebDriverWait(driver, 45).until(EC.presence_of_element_located((By.ID, "flight-direction-text")))
 
-    flights = []
+    flights = {}
     i = 0
     while i < int(getFlightCount()):
-        flights.append(flightToStr(getFlight(i, getCabinTypes())))
+        flights["flight" + i] = getFlight(i, getCabinTypes())
         i += 1
     return flights
 
@@ -96,31 +95,31 @@ def getPrice(flightNum, product): #Pulls the miles and copay for the flight numb
 
 
 def getFlight(flightNum, cabins):
-    fli = Flight
+    fli = {}
     i = 0
     while i < len(cabins):
         if cabins[i] == "Main Cabin":
-            fli.ep = getPrice(flightNum, i)
+            fli["Economy"] = getPrice(flightNum, i)
         if cabins[i] == "Premium Economy":
-            fli.pp = getPrice(flightNum, i)
+            fli["Premium Economy"] = getPrice(flightNum, i)
         if cabins[i] == "Business":
-            fli.bp = getPrice(flightNum, i)
+            fli["Business"] = getPrice(flightNum, i)
         if cabins[i] == "First":
-            fli.fp = getPrice(flightNum, i)
+            fli["First"] = getPrice(flightNum, i)
         i += 1
 
     if "Main Cabin" not in cabins:
-        fli.ep = -1
+        fli["Economy"] = -1
     if "Premium Economy" not in cabins:
-        fli.pp = -1
+        fli["Premium Economy"] = -1
     if "Business" not in cabins:
-        fli.bp = -1
+        fli["Business"] = -1
     if "First" not in cabins:
-        fli.fp = -1
+        fli["First"] = -1
 
-    fli.origin = driver.find_element(By.CSS_SELECTOR, "#flight-details-" + str(flightNum) + " .origin > .city-code").text
-    fli.destination = driver.find_element(By.CSS_SELECTOR, "#flight-details-" + str(flightNum) + " .destination > .city-code").text
-    fli.duration = driver.find_element(By.CSS_SELECTOR, "#flight-details-" + str(flightNum) + " .duration").text
+    # fli["Origin"] = driver.find_element(By.CSS_SELECTOR, "#flight-details-" + str(flightNum) + " .origin > .city-code").text
+    # fli["Destination"] = driver.find_element(By.CSS_SELECTOR, "#flight-details-" + str(flightNum) + " .destination > .city-code").text
+    fli["Duration"] = driver.find_element(By.CSS_SELECTOR, "#flight-details-" + str(flightNum) + " .duration").text
 
     return fli
 
@@ -169,13 +168,16 @@ def convertDate(date): #Converts the date to the correct format
     total = str(month) + "/" + str(day) + "/" + str(year)
     return total
 
+results = {}
 
 start_date = datetime.date(2023, 8, 21)
 end_date = datetime.date(2023, 8, 23)
 delta = datetime.timedelta(days=1)
-print(convertDate(start_date) + " --> " + str(searchInit("NYC", "DEL", convertDate(start_date), 0)))
+results[convertDate(start_date)] = searchInit("NYC", "DEL", convertDate(start_date), 0)
 while start_date < end_date:
     start_date += delta
-    print(convertDate(start_date) + " --> " + str(searchCont(convertDate(start_date))))
+    results[convertDate(start_date)] = searchCont(convertDate(start_date))
+
+print(json.dumps(results, indent=4))
 
 driver.quit()
