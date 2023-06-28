@@ -7,19 +7,6 @@ import datetime
 import undetected_chromedriver as uc
 import json
 
-class Flight:
-    def __init__(self, ep, pp, bp, fp, origin, destination, duration):
-        self.ep = ep
-        self.pp = pp
-        self.bp = bp
-        self.fp = fp
-        self.origin = origin
-        self.destination = destination
-        self.duration = duration
-
-def flightToStr(f):
-    return str(f.ep) + " -- " + str(f.pp) + " -- " + str(f.bp) + " -- " + str(f.fp) + " -- Duration: " + str(f.duration)
-
 driver = uc.Chrome(headless=True)
 driver.get("https://www.aa.com/booking/find-flights?maxAwardSegmentAllowed=4")
 
@@ -57,7 +44,7 @@ def searchInit(origin, destination, departure, arrival):
     flights = {}
     i = 0
     while i < int(getFlightCount()):
-        flights["flight" + i] = getFlight(i, getCabinTypes())
+        flights["flight" + str(i)] = getFlight(i, getCabinTypes())
         i += 1
     return flights
 
@@ -78,7 +65,7 @@ def searchCont(departure):
     flights = {}
     i = 0
     while i < int(getFlightCount()):
-        flights["flight" + i] = getFlight(i, getCabinTypes())
+        flights["flight" + str(i)] = getFlight(i, getCabinTypes())
         i += 1
     return flights
 
