@@ -35,7 +35,26 @@ def searchInit(origin, destination, departure):
     WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".lof-origin")))
     print(getCabinTypes())
 
+    getAllFlights(0)
     time.sleep(25)
+
+def getAllFlights(cabins):
+    allFlights = {}
+    hashes = []
+
+    flights = driver.find_element(By.ID, "flight-result-list-revised")
+    elements = flights.find_elements(By.TAG_NAME, "li")
+
+    for i in elements:
+        hashes.append(i.find_element(By.XPATH, "//data-flight-hash"))
+
+    print(hashes)
+    print(len(hashes))
+
+
+def getFlight(flightNum, cabins):
+    flight = {}
+
 
 def getCabinTypes():
     try:
@@ -59,4 +78,4 @@ def getCabinTypes():
             classes.remove(i)
     return classes
 
-searchInit("NYC", "ORD", "12/28/2023")
+searchInit("NYC", "DEL", "12/25/2023")
