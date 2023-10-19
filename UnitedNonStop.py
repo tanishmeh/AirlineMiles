@@ -35,25 +35,37 @@ def searchInit(origin, destination, departure):
     WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".lof-origin")))
     print(getCabinTypes())
 
-    getAllFlights(0)
+    # WebDriverWait(driver, 3).until(EC.presence_of_element_located((By.ID, "a-results-show-all"))) #This currently does not work, limited to 20 results
+    # try:
+    #     expand = driver.find_element(By.ID, "a-results-show-all").click()
+    # except NoSuchElementException:
+    #     expand = 0
+
+    print(getFlightHashes())
+    print(getFlight("ECO-PREMIUM-DISP_", "359-82-UA"))
     time.sleep(25)
 
-def getAllFlights(cabins):
-    allFlights = {}
+def getFlightHashes():
     hashes = []
 
     flights = driver.find_element(By.ID, "flight-result-list-revised")
-    elements = flights.find_elements(By.TAG_NAME, "li")
+    elements = flights.find_elements(By.XPATH, ".//li[contains(@class, 'flight-block flight-block-fares')]")
 
     for i in elements:
-        hashes.append(i.find_element(By.XPATH, "//data-flight-hash"))
+        hashes.append(i.get_attribute("data-flight-hash"))
 
-    print(hashes)
-    print(len(hashes))
+    return hashes
 
-
-def getFlight(flightNum, cabins):
+def getFlight(cabinCode, hash):
     flight = {}
+    econ = driver.find_element(By.XPATH, "//div[@id='sr_product_" + cabinCode + hash + "']/div/div").text
+    econCo = driver.find_element(By.XPATH, "//div[@id='sr_product_" + cabinCode + hash + "']/div/div[2]").text
+    if (econ == "Saver Award"):
+        econ = driver.find_element(By.XPATH, "//div[@id='sr_product_" + cabinCode + hash + "']/div/div[2]").text
+        econCo = driver.find_element(By.XPATH, "//div[@id='sr_product_" + cabinCode + hash + "']/div/div[3]").text
+
+    return econ + econCo
+# def getPrices(hashes):
 
 
 def getCabinTypes():
