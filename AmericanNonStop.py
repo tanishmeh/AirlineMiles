@@ -162,10 +162,10 @@ def convertDate(date): #Converts the date to the correct format
 file = open("AANonstop.json", "w")
 results = {} #This will be the final dictionary containing the dates and the flights for that day
 
-start_date = datetime.date(2023, 11, 9)
-end_date = datetime.date(2023, 11, 10)
+start_date = datetime.date(2023, 12, 9)
+end_date = datetime.date(2023, 12, 9)
 delta = datetime.timedelta(days=1)
-results[convertDate(start_date)] = searchInit("EWR", "PHX", convertDate(start_date), 0)
+results[convertDate(start_date)] = searchInit("JFK", "DEL", convertDate(start_date), 0)
 while start_date < end_date:
     start_date += delta
     results[convertDate(start_date)] = searchCont(convertDate(start_date))

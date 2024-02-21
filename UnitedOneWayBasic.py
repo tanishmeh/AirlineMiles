@@ -138,8 +138,8 @@ file = open("UAOneWay.json", "w")
 
 results = {}
 
-start_date = datetime.date(2023, 11, 15)
-end_date = datetime.date(2023, 11, 16)
+start_date = datetime.date(2024, 11, 15)
+end_date = datetime.date(2024, 11, 16)
 delta = datetime.timedelta(days=1)
 results[convertDate(start_date)] = searchInit("EWR", "DEL", convertDate(start_date))
 while start_date < end_date:

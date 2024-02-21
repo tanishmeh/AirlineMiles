@@ -1,0 +1,123 @@
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #000;
+  color: #fff;
+  font-family: Arial, sans-serif;
+}
+
+#flights {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  padding-bottom: 20px;
+}
+
+/* Existing body and #flights styles remain unchanged */
+
+.flight-card {
+  background-color: #1c1c1c;
+  margin-bottom: 20px;
+  padding: 20px;
+  border-radius: 10px;
+  width: 70%;
+  position: relative; /* Add position relative for absolute children */
+}
+
+.flight-header {
+  display: flex;
+  justify-content: space-between;
+  position: relative; /* Ensure position is relative for absolute positioning of children */
+  padding-bottom: 5px; /* Adjust as necessary */
+}
+
+.non-stop, .airport {
+  font-size: 1.3em; /* Adjust font size as needed */
+  display: inline-block;
+  position: relative; /* Ensure relative positioning for absolute children */
+  padding: 4px;
+}
+
+/* Adjust .flight-times to position travel time correctly */
+.flight-times {
+  font-size: 1.1em;
+  position: relative; /* Add relative positioning */
+  display: flex;
+  justify-content: space-between; /* Space out the times */
+  align-items: center; /* Center align the items */
+  margin-top: 10px; /* Add some space above */
+  padding: 4px;
+}
+
+.travel-time {
+  position: absolute; /* Absolute positioning within the flight-times */
+  left: 50%; /* Center horizontally */
+  transform: translateX(-50%); /* Offset by half width to truly center */
+}
+
+.flight-pricing {
+  display: flex;
+  justify-content: space-around;
+  text-align: center;
+  margin-top: 10px; /* Adjust as necessary */
+  padding: 3px;
+}
+
+/* Style the arrow line */
+.line {
+  position: absolute;
+  top: 35%; /* Align with the middle vertically */
+  left: 50px; /* Start from the very left */
+  right: 50px; /* End at the very right */
+  height: 3px; /* Line thickness */
+  background-color: #fff; /* Line color */
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #000;
+  color: #fff;
+  font-family: Arial, sans-serif;
+}
+
+header {
+  text-align: center;
+  background: #1c1c1c;
+  padding: 2px;
+}
+
+h1 {
+  margin-bottom: 10px;
+}
+
+#flightSearchForm {
+  display: inline-flex;
+  gap: 10px;
+}
+
+#flightSearchForm input,
+#flightSearchForm button {
+  padding: 10px;
+  margin: 0 5px;
+  border: none;
+  border-radius: 5px;
+}
+
+#flightSearchForm input {
+  color: #333;
+}
+
+#flightSearchForm button {
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+}

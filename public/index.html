@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flight Information</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <h1>Flight Search</h1>
+    <form id="flightSearchForm">
+      <input type="text" id="departureAirport" name="departureAirport" placeholder="From" required>
+      <input type="text" id="arrivalAirport" name="arrivalAirport" placeholder="To" required>
+      <input type="date" id="departureDate" name="departureDate" required>
+      <button type="submit">Search</button>
+      <div class="sort-by-container">
+        <label for="sort-by">Sort by:</label>
+        <select id="sort-by" onchange="sortResults()">
+          <option value="economyPrice">Economy Price</option>
+          <option value="premiumPrice">Premium Price</option>
+          <option value="businessPrice">Business Price</option>
+          <option value="firstPrice">First Price</option>
+          <option value="duration">Duration</option>
+        </select>
+      </div>
+    </form>
+  </header>
+
+  <div id="flights"></div>
+
+  <script src="scripts.js"></script>
+
+</body>
+</html>
