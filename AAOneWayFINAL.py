@@ -33,8 +33,7 @@ class Flight:
             "First": self.fir
         }
 
-# driver = uc.Chrome(headless=True)
-driver = uc.Chrome()
+driver = uc.Chrome(headless=True)
 driver.get("https://www.aa.com/booking/find-flights?maxAwardSegmentAllowed=4")
 
 
@@ -190,7 +189,7 @@ results = {}  # This will be the final dictionary containing the dates and the f
 date = datetime.date(2024, 12, 9)
 end_date = datetime.date(2024, 12, 9)
 delta = datetime.timedelta(days=1)
-results[convertDate(date)] = searchInit("JFK", "DEL", convertDate(date), 0, True)
+results[convertDate(date)] = searchInit("JFK", "MIA", convertDate(date), 0, True)
 while date < end_date:
     date += delta
     results[convertDate(date)] = searchCont(convertDate(date))
