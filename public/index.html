@@ -12,11 +12,12 @@
     <form id="flightSearchForm">
       <input type="text" id="departureAirport" name="departureAirport" placeholder="From" required>
       <input type="text" id="arrivalAirport" name="arrivalAirport" placeholder="To" required>
-      <input type="date" id="departureDate" name="departureDate" required>
+      <input type="date" id="departureDate1" name="departureDate1" required>
+      <input type="date" id="departureDate2" name="departureDate2" required>
       <button type="submit">Search</button>
       <div class="sort-by-container">
         <label for="sort-by">Sort by:</label>
-        <select id="sort-by" onchange="sortResults()">
+        <select id="sort-by">
           <option value="Default">Default</option>
           <option value="Economy">Economy Price</option>
           <option value="Premium">Premium Price</option>

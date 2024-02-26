@@ -17,22 +17,55 @@ class Flight {
 let globalFlightsData = [];
 
 document.addEventListener('DOMContentLoaded', function() {
-  fetch('/flights')
-  .then(response => response.json())
-  .then(data => {
-    // Store fetched data for later sorting
-    globalFlightsData = transformData(data);
-    renderFlights(globalFlightsData);
-  })
-  .catch(error => console.error('Error fetching flight data:', error));
+  const searchForm = document.getElementById('flightSearchForm');
+  searchForm.addEventListener('submit', async function (event) {
+    event.preventDefault();
+    const from = document.getElementById('departureAirport').value;
+    const to = document.getElementById('arrivalAirport').value;
+    const date1 = String(document.getElementById('departureDate1').value);
+    const date2 = String(document.getElementById('departureDate2').value);
+    console.log(from, to, date1, date2);
 
-  // Event listener for sort selection change
-  document.getElementById('sort-by').addEventListener('change', function() {
-    sortAndRenderFlights();
+    sendInputs(from, to, date1, date2)
+        .then(() => {
+          // Now fetch the flights after the above POST request has completed
+          return fetch('/flights');
+        })
+        .then(response => response.json())
+        .then(data => {
+          globalFlightsData = transformData(data);
+          renderFlights(globalFlightsData);
+        })
+        .catch(error => console.error('Error fetching flight data:', error));
+    // Event listener for sort selection change
+    document.getElementById('sort-by').addEventListener('change', function () {
+      sortAndRenderFlights();
+    });
   });
 });
 
-// Transform fetched data into a sortable array
+function sendInputs(from, to, date1, date2) {
+  return new Promise((resolve, reject) => {
+    fetch('/AAOneWayFINAL', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ from, to, date1, date2 }),
+    })
+        .then(response => response.json())
+        .then(data => {
+          console.log(data);
+          resolve(data);
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          reject(error);
+        });
+  });
+}
+
+// Transform fetched data into a sortable array filled with Flight objects
 function transformData(data) {
   let flightsArray = [];
   Object.entries(data).forEach(([date, flights]) => {
@@ -55,7 +88,6 @@ function transformData(data) {
   return flightsArray;
 }
 
-// Sort (if needed) and re-render flights
 // Converts price string "10.5K + $5.60" to a numeric value
 function parsePrice(priceString) {
   const [kPart, dollarPart] = priceString.split(' + ');
@@ -77,19 +109,29 @@ function sortAndRenderFlights() {
     if (['Economy', 'Premium', 'Business', 'First'].includes(sortBy)) {
       return parsePrice(a[sortBy]) - parsePrice(b[sortBy]);
     } else if (sortBy === 'Duration') {
-      return parseDuration(a.duration) - parseDuration(b.duration);
+      return parseDuration(a.travelTime) - parseDuration(b.travelTime);
     }
   });
   renderFlights(globalFlightsData);
 }
 
-
 // Function to parse duration string into a comparable number (e.g., total minutes)
 function parseDuration(durationStr) {
-  // Example implementation for parsing duration strings
-  const [hours, minutes] = durationStr.match(/\d+/g);
-  return parseInt(hours) * 60 + parseInt(minutes);
+  let parts = durationStr.split(' ');
+  let hours = 0;
+  let minutes = 0;
+
+  parts.forEach(part => {
+    if (part.includes('h')) {
+      hours = parseInt(part.replace('h', ''), 10);
+    } else if (part.includes('m')) {
+      minutes = parseInt(part.replace('m', ''), 10);
+    }
+  });
+
+  return (hours * 60) + minutes;
 }
+
 // Function to render flights to the DOM
 function renderFlights(flightsData) {
   const flightsContainer = document.getElementById('flights');

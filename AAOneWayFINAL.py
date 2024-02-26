@@ -6,6 +6,7 @@ from selenium.common.exceptions import NoSuchElementException
 import datetime
 import undetected_chromedriver as uc
 import json
+import sys
 
 
 class Flight:
@@ -182,28 +183,36 @@ def convertDate(date):  # Converts the date to the correct format
     total = str(month) + "/" + str(day) + "/" + str(year)
     return total
 
+def parseDate(date):
+    date = date.split("-")
+    return datetime.date(int(date[0]), int(date[1]), int(date[2]))
 
-file = open("AANonstop.json", "w")
-results = {}  # This will be the final dictionary containing the dates and the flights for that day
+if __name__ == "__main__":
+    departAirport = sys.argv[1]
+    arrivalAirport = sys.argv[2]
+    date1 = sys.argv[3]
+    date2 = sys.argv[4]
+    file = open("AANonstop.json", "w")
+    results = {}  # This will be the final dictionary containing the dates and the flights for that day
 
-date = datetime.date(2024, 12, 9)
-end_date = datetime.date(2024, 12, 9)
-delta = datetime.timedelta(days=1)
-results[convertDate(date)] = searchInit("JFK", "MIA", convertDate(date), 0, True)
-while date < end_date:
-    date += delta
-    results[convertDate(date)] = searchCont(convertDate(date))
+    date = parseDate(date1)
+    end_date = parseDate(date2)
+    delta = datetime.timedelta(days=1)
+    results[convertDate(date)] = searchInit(departAirport, arrivalAirport, convertDate(date), 0, True)
+    while date < end_date:
+        date += delta
+        results[convertDate(date)] = searchCont(convertDate(date))
 
-serializable_results = {}
-for date, flights in results.items():
-    serializable_flights = {}
-    for flight_key, flight_obj in flights.items():
-        serializable_flights[flight_key] = flight_obj.to_dict()  # Convert Flight object to a dictionary
-    serializable_results[date] = serializable_flights
+    serializable_results = {}
+    for date, flights in results.items():
+        serializable_flights = {}
+        for flight_key, flight_obj in flights.items():
+            serializable_flights[flight_key] = flight_obj.to_dict()  # Convert Flight object to a dictionary
+        serializable_results[date] = serializable_flights
 
-jsonResult = json.dumps(serializable_results, indent=4)
+    jsonResult = json.dumps(serializable_results, indent=4)
 
-file.write(jsonResult)
-file.close()
+    file.write(jsonResult)
+    file.close()
 
-driver.quit()
+    driver.quit()
