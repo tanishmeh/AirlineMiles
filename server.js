@@ -18,19 +18,28 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(express.urlencoded({ extended: true }));
 
+let scriptStatus = 'pending'; // could be 'pending', 'complete', or 'error'
+
 app.post('/AAOneWayFINAL', (req, res) => {
   const { from, to, date1, date2 } = req.body;
+  scriptStatus = 'pending';
+  //res.redirect('/results');
   exec(`${venvPath} AAOneWayFINAL.py ${from} ${to} ${date1} ${date2}`, (error, stdout, stderr) => {
     if (error) {
       console.error(`exec error: ${error}`);
+      scriptStatus = 'error';
       res.status(500).json({ message: "Error executing script" });
       return;
     }
-    console.log(`stdout: ${stdout}`);
+    scriptStatus = 'complete';
+    //console.log(`stdout: ${stdout}`);
     console.error(`stderr: ${stderr}`);
   });
   console.log('Data received and Python script executed.');
-  res.json({ message: "Data received and Python script executed." });
+});
+
+app.get('/script-status', (req, res) => {
+  res.json({ status: scriptStatus });
 });
 
 app.get('/flights', (req, res) => {
@@ -61,6 +70,10 @@ app.get('/flights', (req, res) => {
     });
   }
   checkFileExistsAndNotEmpty();
+});
+
+app.get('/results', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public/results.html'));
 });
 
 app.listen(PORT, () => {

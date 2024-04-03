@@ -1,0 +1,36 @@
+// document.addEventListener('DOMContentLoaded', async function () {
+//     showLoadingIndicator();
+//     try {
+//         const response = await fetch('/flights');
+//         const data = await response.json();
+//         globalFlightsData = transformData(data);
+//         renderFlights(globalFlightsData);
+//         console.log("Render Flights");
+//     } catch (error) {
+//         console.error('Error fetching flight data:', error);
+//     } finally {
+//         hideLoadingIndicator();
+//     }
+//     document.getElementById('sort-by').addEventListener('change', function () {
+//         sortAndRenderFlights();
+//     });
+// });
+
+
+
+// app.post('/results', (req, res) => {
+//   const { from, to, date1, date2 } = req.body;
+//
+//   res.redirect('/results');
+//
+//   //exec(`${venvPath} AAOneWayFINAL.py ${from} ${to} ${date1} ${date2}`, (error, stdout, stderr) => {
+//   //   if (error) {
+//   //     console.error(`exec error: ${error}`);
+//   //     // Handle the error appropriately
+//   //     return;
+//   //   }
+//   //   console.log(`stdout: ${stdout}`);
+//   //   console.error(`stderr: ${stderr}`);
+//   //   // Process the output as needed
+//   // });
+// });

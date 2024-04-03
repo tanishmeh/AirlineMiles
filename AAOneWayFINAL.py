@@ -71,9 +71,9 @@ def searchInit(origin, destination, departure, arrival, nearbyAirports):  # Init
     submit = driver.find_element(By.ID, "flightSearchSubmitBtn")
     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
     submit.click()
-    print("SearchInit completed!")
+    #print("SearchInit completed!")
     WebDriverWait(driver, 45).until(EC.presence_of_element_located((By.ID, "flight-direction-text")))
-    print(getCabinTypes())
+    #print(getCabinTypes())
 
     return getAllFlights()
 
@@ -216,3 +216,5 @@ if __name__ == "__main__":
     file.close()
 
     driver.quit()
+
+    sys.exit(0)

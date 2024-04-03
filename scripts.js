@@ -24,23 +24,28 @@ document.addEventListener('DOMContentLoaded', function() {
     const to = document.getElementById('arrivalAirport').value;
     const date1 = String(document.getElementById('departureDate1').value);
     const date2 = String(document.getElementById('departureDate2').value);
-    console.log(from, to, date1, date2);
 
-    sendInputs(from, to, date1, date2)
-        .then(() => {
-          // Now fetch the flights after the above POST request has completed
-          return fetch('/flights');
-        })
-        .then(response => response.json())
-        .then(data => {
-          globalFlightsData = transformData(data);
-          renderFlights(globalFlightsData);
-        })
-        .catch(error => console.error('Error fetching flight data:', error));
+    if (window.location.pathname.includes('results')) {
+
+      showLoadingIndicator();
+
+      try {
+        await sendInputs(from, to, date1, date2);
+        const response = await fetch('/flights');
+        const data = await response.json();
+        globalFlightsData = transformData(data);
+        renderFlights(globalFlightsData);
+        console.log("Render Flights");
+      } catch (error) {
+        console.error('Error fetching flight data:', error);
+      } finally {
+        hideLoadingIndicator();
+      }
+    }
     // Event listener for sort selection change
-    document.getElementById('sort-by').addEventListener('change', function () {
-      sortAndRenderFlights();
-    });
+    // document.getElementById('sort-by').addEventListener('change', function () {
+    //   sortAndRenderFlights();
+    // });
   });
 });
 
@@ -160,4 +165,17 @@ function renderFlights(flightsData) {
           `;
     flightsContainer.appendChild(flightDiv);
   });
+}
+
+// Show loading indicator function
+function showLoadingIndicator() {
+  // Add your loading indicator display logic here
+  document.getElementById('loadingIndicator').style.display = 'flex';
+}
+
+// Hide loading indicator function
+function hideLoadingIndicator() {
+  // Add your loading indicator hide logic here
+  document.getElementById('loadingIndicator').style.display = 'none';
+  console.log("Loading Indicator Complete");
 }
